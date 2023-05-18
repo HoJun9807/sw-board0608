@@ -1,18 +1,28 @@
 package idusw.springboot.controller;
 
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/")
+@RequiredArgsConstructor
 public class HomeController {
-    /* Field DI
-    @Autowired
-    MemoService memoService;  // MemoService 인터페이스의 구현체를 필드 주입
-    */
-    @GetMapping
-    public String goHome() {
-        return "/main/index";
+    private final HttpSession httpSession;
+
+    @GetMapping("/")
+    public String goHome(Model model) {
+        return "main/index";
     }
+
+    @GetMapping("/tables")
+    public String getTables() { return "admin/tables"; }
+
+    @GetMapping("/buttons")
+    public String getButtons() { return "admin/buttons"; }
+
+    @GetMapping("/cards")
+    public String getCards() { return "admin/cards"; }
 }

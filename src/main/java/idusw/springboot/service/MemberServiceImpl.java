@@ -1,10 +1,15 @@
 package idusw.springboot.service;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import idusw.springboot.domain.Member;
 import idusw.springboot.domain.PageRequestDTO;
 import idusw.springboot.domain.PageResultDTO;
 import idusw.springboot.entity.MemberEntity;
+
+import idusw.springboot.entity.QMemberEntity;
 import idusw.springboot.repository.MemberRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,6 +24,7 @@ public class MemberServiceImpl implements MemberService {
     // DI - IoC (Inversion of Control : 제어의 역전) 방법 중 하나, DI, DL ...
     //
     MemberRepository memberRepository;
+
     public MemberServiceImpl(MemberRepository memberRepository) { // Spring Framework이 주입(하도록 요청함)
         this.memberRepository = memberRepository;
     }
@@ -31,7 +37,7 @@ public class MemberServiceImpl implements MemberService {
                 .name(m.getName())
                 .pw(m.getPw())
                 .build();
-        if(memberRepository.save(entity) != null) // 저장 성공
+        if (memberRepository.save(entity) != null) // 저장 성공
             return 1;
         else
             return 0;
@@ -52,9 +58,9 @@ public class MemberServiceImpl implements MemberService {
     public List<Member> readList() {
         List<MemberEntity> entities = new ArrayList<>();
         List<Member> members = null;
-        if((entities = memberRepository.findAll()) != null) {
+        if ((entities = memberRepository.findAll()) != null) {
             members = new ArrayList<>();
-            for(MemberEntity e : entities) {
+            for (MemberEntity e : entities) {
                 Member m = Member.builder()
                         .seq(e.getSeq())
                         .email(e.getEmail())
@@ -77,7 +83,7 @@ public class MemberServiceImpl implements MemberService {
                 .name(m.getName())
                 .pw(m.getPw())
                 .build();
-        if(memberRepository.save(entity) != null) // 저장 성공
+        if (memberRepository.save(entity) != null) // 저장 성공
             return 1;
         else
             return 0;
@@ -97,7 +103,7 @@ public class MemberServiceImpl implements MemberService {
         MemberEntity e = memberRepository.getByEmailPw(m.getEmail(), m.getPw()); // JpaRepository 구현체의 메소드
         System.out.println("login : " + e);
         Member result = null; // DTO (Data Transfer Object) : Controller - Service or Controller - View
-        if(e != null) {
+        if (e != null) {
             result = new Member();
             result.setSeq(e.getSeq());
             result.setEmail(e.getEmail());
@@ -108,12 +114,64 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public PageResultDTO<Member, MemberEntity> getList(PageRequestDTO requestDTO) {
-        Pageable pageable = requestDTO.getPageable(Sort.by("seq").ascending());
 
-        Page<MemberEntity> result = memberRepository.findAll(pageable);
+        Sort sort = Sort.by("seq").descending();
+        /*
+        if (requestDTO.getSort() == null)
+            sort = Sort.by("seq").descending();
+        else
+            sort = Sort.by("seq").ascending();
+        */
+
+        Pageable pageable = requestDTO.getPageable(sort);
+
+        BooleanBuilder booleanBuilder = findByCondition(requestDTO);
+        Page<MemberEntity> result = memberRepository.findAll(booleanBuilder,pageable);
+
         Function<MemberEntity, Member> fn = (entity -> entityToDto(entity));
 
-        return new PageResultDTO<>(result, fn);
+        PageResultDTO pageResultDTO = new PageResultDTO<>(result, fn, requestDTO.getPerPagination());
+
+
+        return pageResultDTO;
     }
 
+    private BooleanBuilder findByCondition(PageRequestDTO pageRequestDTO) {
+        String type = pageRequestDTO.getType();
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+
+        QMemberEntity qMemberEntity = QMemberEntity.memberEntity;
+
+        BooleanExpression expression = qMemberEntity.seq.gt(0L); // where seq > 0 and title == "title"
+        booleanBuilder.and(expression);
+
+        if (type == null || type.trim().length() == 0) {
+            return booleanBuilder;
+        }
+
+        String keyword = pageRequestDTO.getKeyword();
+
+        BooleanBuilder conditionBuilder = new BooleanBuilder();
+        if (type.contains("e")) { // email로 검색
+            conditionBuilder.or(qMemberEntity.email.contains(keyword));
+        }
+        if (type.contains("n")) { // 이름로 검색
+            conditionBuilder.or(qMemberEntity.name.contains(keyword));
+        }
+        /*
+        if(type.contains("p")) { // phone로 검색
+            conditionBuilder.or(qMemberEntity.phone.contains(keyword));
+        if(type.contains("a")) { // address로 검색
+            conditionBuilder.or(qMemberEntity.address.contains(keyword));
+        } // 조건을 전부 줄 수도 있으니 if else문 아님
+        if(type.contains("l")) {
+            conditionBuilder.or(qMemberEntity.level.contains(keyword));
+        }
+
+
+
+         */
+        booleanBuilder.and(conditionBuilder);
+        return booleanBuilder;
+    }
 }

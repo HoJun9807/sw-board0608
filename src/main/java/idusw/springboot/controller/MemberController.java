@@ -23,17 +23,44 @@ public class MemberController {
     }
     HttpSession session = null;
 
-    @GetMapping("/list")
-    public String listMember2(Model model) {
-        List<Member> result = null;
-        if((result = memberService.readList()) != null) {
-            model.addAttribute("list", result);
-            return "/members/list2"; // view : template engine - thymeleaf .html
+//    @GetMapping(value = {"", "/{pn}/{size}"})
+//    public String listMemberPagination(@PathVariable("pn") int pn, @PathVariable("size") int size, Model model) {
+//
+//        PageRequestDTO pageRequestDTO = PageRequestDTO.builder().page(pn).size(size).build();
+//        PageResultDTO<Member, MemberEntity> resultDTO = memberService.getList(pageRequestDTO);
+//        if(resultDTO != null) {
+//            model.addAttribute("result", resultDTO); //page number list
+//            return "/members/list"; // view : template engine - thymeleaf .html
+//        }
+//        else
+//            return "/errors/404";
+//    }
+
+    @GetMapping(value = {"","/"} )
+    public String listMemberPagination(@RequestParam(value="page",required = false, defaultValue = "1") int page,
+                                       @RequestParam(value="perPage",required = false, defaultValue = "10") int perPage,
+                                       @RequestParam(value = "perPagination",required = false, defaultValue = "5") int perPagination,
+                                       @RequestParam(value = "type",required = false, defaultValue = "e") String type,
+                                       @RequestParam(value = "keyword",required = false, defaultValue = "") String keyword,
+
+                                       Model model){
+        PageRequestDTO pageResultDTO = PageRequestDTO.builder()
+                .page(page)
+                .perPage(perPage)
+                .perPagination(perPagination)
+                .type(type)
+                .keyword(keyword)
+                .build();
+        PageResultDTO<Member, MemberEntity> resultDTO = memberService.getList(pageResultDTO);
+        if(resultDTO != null) {
+            model.addAttribute("result", resultDTO);
+            return "/members/list";
         }
         else
             return "/errors/404";
     }
-    @GetMapping("/login-form")
+
+    @GetMapping("/login")
     public String getLoginform(Model model) {
         model.addAttribute("member", Member.builder().build()); // email / pw 전달을 위한 객체
         return "/members/login"; // view : template engine - thymeleaf .html
@@ -54,7 +81,7 @@ public class MemberController {
         session.invalidate();
         return "redirect:/";
     }
-
+/*
     @GetMapping(value = {"", "/"})
     public String listMember(Model model) {
         List<Member> result = null;
@@ -65,31 +92,23 @@ public class MemberController {
         else
             return "/errors/404";
     }
-    @GetMapping(value = {"/pn/{pn}"})
-    public String listMemberByPageNumber(@PathVariable("pn") int pn, Model model) {
-        PageRequestDTO pageRequestDTO = PageRequestDTO.builder().page(pn).size(10).build();
-        PageResultDTO<Member, MemberEntity> resultDTO = memberService.getList(pageRequestDTO);
-        List<Member> result = resultDTO.getDtoList();
-        if(result != null) {
-            model.addAttribute("list", result);
-            return "/members/list";
-        }
-        else
-            return "/errors/404";
-    }
 
-    @GetMapping("/register-form")
-    public String getRegisterForm(Model model) { // form 요청 -> view (template engine)
+ */
+
+    @GetMapping("/register")
+    public String getRegisterForm(Model model) {
         model.addAttribute("member", Member.builder().build());
         return "/members/register";
     }
-    @PostMapping("/")
-    public String createMember(@ModelAttribute("member") Member member, Model model) { // 등록 처리 -> service -> repository -> service -> controller
-        if(memberService.create(member) > 0 ) // 정상적으로 레코드의 변화가 발생하는 경우 영향받는 레코드 수를 반환
-            return "redirect:/";
+
+    @PostMapping("/register")
+    public String registerMember(@ModelAttribute("member") Member member, Model model) {
+        if (memberService.create(member) > 0)
+            return "redirect:/members/login";
         else
-            return "/errors/404";
+            return "redirect:/members/register";
     }
+
     @GetMapping("/{seq}")
     public String getMember(@PathVariable("seq") Long seq, Model model) {
         Member result = new Member(); // 반환
