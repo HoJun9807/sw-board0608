@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>IduSw - Update Member</title>
+    <title>IduSw - Reg</title>
 
     <!-- Custom fonts for this template-->
     <div th:replace="~{/main/main-fragment :: header}"></div>
@@ -28,28 +28,29 @@
                     <div class="col-lg-7">
                         <div class="p-5">
                             <div class="text-center">
-                                <h1 class="h4 text-gray-900 mb-4">Check an Account!</h1>
+                                <h1 class="h4 text-gray-900 mb-4">Create an Account!</h1>
                             </div>
-                            <form class="user" th:action="@{'/members/' + ${member.seq}}" th:object="${member}" th:method="put">
+                            <form class="user" th:action="@{'/boards/register'}" th:object="${board}" th:method="post">
                                 <div class="form-group row">
-                                    <input type="email" name="email" th:value="${member.email}" th:field="*{email}" class="form-control form-control-user" id="exampleInputEmail"
-                                           placeholder="Email Address" readonly>
-                                </div>
-                                <div class="form-group row">
-                                    <input type="text" name="name" th:value="${member.name}" th:field="*{name}" class="form-control form-control-user" id="exampleFirstName"
+                                    <input type="text" name="title" th:field="*{name}" class="form-control form-control-user" id="exampleFirstName"
                                             placeholder=" Name">
+                                </div>
+                                <div class="form-group">
+                                    <input type="email" name="content" th:field="*{content}" class="form-control form-control-user" id="exampleInputEmail"
+                                        placeholder="Email Address">
                                 </div>
                                 <div class="form-group row">
                                     <div class="col-sm-6 mb-3 mb-sm-0">
-                                        <input type="password" name="pw" th:field="*{pw}" class="form-control form-control-user"
-                                            id="exampleInputPassword" placeholder="Password">
+                                        <input type="hidden" name="writerSeq" th:value="${session.mb.seq}" th:field="*{wirterSeq}">
+                                        <input type="text" name="writerEmail" th:value="${session.mb.email}" th:field="*{writerEmail}" class="form-control form-control-user"
+                                            id="exampleInputPassword" placeholder="Writer Email">
                                     </div>
                                     <div class="col-sm-6">
-                                        <input type="password" class="form-control form-control-user"
-                                            id="exampleRepeatPassword" placeholder="Repeat Password">
+                                        <input type="text" name="writeName" th:value="${session.mb.name}" th:field="*{writerName}" class="form-control form-control-user"
+                                            id="exampleRepeatPassword" placeholder="Writer Name">
                                     </div>
                                 </div>
-                                <input type="submit" value="Update Account" class="btn btn-primary btn-user btn-block">
+                                <input type="submit" value="Register Account" class="btn btn-primary btn-user btn-block">
                                 <hr>
                                 <a href="../main/index.html" class="btn btn-google btn-user btn-block">
                                     <i class="fab fa-google fa-fw"></i> Register with Google
@@ -60,12 +61,10 @@
                             </form>
                             <hr>
                             <div class="text-center">
-                                <form class="user" th:action="@{'/members/' + ${member.seq}}" th:object="${member}" th:method="delete">
-                                    <input type="submit" value="탈퇴" />
-                                </form>
+                                <a class="small" href="forgot-password.html">Forgot Password?</a>
                             </div>
                             <div class="text-center">
-                                <a class="small" href="/static">Go Home</a>
+                                <a class="small" href="login.html">Already have an account? Login!</a>
                             </div>
                         </div>
                     </div>

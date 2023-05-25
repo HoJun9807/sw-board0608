@@ -6,10 +6,8 @@ import idusw.springboot.domain.Member;
 import idusw.springboot.domain.PageRequestDTO;
 import idusw.springboot.domain.PageResultDTO;
 import idusw.springboot.entity.MemberEntity;
-
 import idusw.springboot.entity.QMemberEntity;
 import idusw.springboot.repository.MemberRepository;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -139,23 +137,18 @@ public class MemberServiceImpl implements MemberService {
     private BooleanBuilder findByCondition(PageRequestDTO pageRequestDTO) {
         String type = pageRequestDTO.getType();
         BooleanBuilder booleanBuilder = new BooleanBuilder();
-
         QMemberEntity qMemberEntity = QMemberEntity.memberEntity;
-
-        BooleanExpression expression = qMemberEntity.seq.gt(0L); // where seq > 0 and title == "title"
+        BooleanExpression expression = qMemberEntity.seq.gt(0L);
         booleanBuilder.and(expression);
-
-        if (type == null || type.trim().length() == 0) {
+        if(type == null || type.trim().length() == 0) {
             return booleanBuilder;
         }
-
         String keyword = pageRequestDTO.getKeyword();
-
         BooleanBuilder conditionBuilder = new BooleanBuilder();
-        if (type.contains("e")) { // email로 검색
+        if(type.contains("e")) {
             conditionBuilder.or(qMemberEntity.email.contains(keyword));
         }
-        if (type.contains("n")) { // 이름로 검색
+        if(type.contains("n")) {
             conditionBuilder.or(qMemberEntity.name.contains(keyword));
         }
         /*
