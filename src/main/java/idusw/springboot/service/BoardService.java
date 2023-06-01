@@ -1,16 +1,18 @@
 package idusw.springboot.service;
 
 import idusw.springboot.domain.Board;
-import idusw.springboot.domain.Member;
+import idusw.springboot.domain.PageRequestDTO;
+import idusw.springboot.domain.PageResultDTO;
 import idusw.springboot.entity.BoardEntity;
 import idusw.springboot.entity.MemberEntity;
 
 import java.util.List;
+import java.util.Objects;
 
 public interface BoardService {
     int registerBoard(Board board);
     Board findBoardById(Board board); // 게시물 ID - bno 조회
-    List<Board> findBoardAll(); //게시물 목록 출력
+    PageResultDTO<Board, Object[]> findBoardAll(PageRequestDTO pageRequestDTO); //게시물 목록 출력
     int updateBoard(Board board); // 게시물 정보
     int deleteBoard(Board board); // 게시물 ID값 삭제
 
@@ -27,7 +29,7 @@ public interface BoardService {
         return entity;
     }
 
-    default Board entityToDto(BoardEntity entity, MemberEntity memberEntity) {
+    default Board entityToDto(BoardEntity entity, MemberEntity memberEntity, Long replyCount) {
         Board dto = Board.builder()
                 .bno(entity.getBno())
                 .title(entity.getTitle())
@@ -35,7 +37,8 @@ public interface BoardService {
                 .writerSeq(memberEntity.getSeq())
                 .writerEmail(memberEntity.getEmail())
                 .writerName(memberEntity.getName())
-
+                .regDate(entity.getRegDate())
+                .modDate(entity.getModDate())
                 .build();
         return dto;
     }
