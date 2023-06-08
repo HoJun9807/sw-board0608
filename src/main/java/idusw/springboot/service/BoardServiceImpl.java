@@ -1,11 +1,15 @@
 package idusw.springboot.service;
 
 import idusw.springboot.domain.Board;
+import idusw.springboot.domain.Member;
 import idusw.springboot.domain.PageRequestDTO;
 import idusw.springboot.domain.PageResultDTO;
 import idusw.springboot.entity.BoardEntity;
 import idusw.springboot.entity.MemberEntity;
 import idusw.springboot.repository.BoardRepository;
+import idusw.springboot.repository.ReplyRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 
 import org.springframework.data.domain.Sort;
@@ -14,18 +18,23 @@ import org.springframework.stereotype.Service;
 
 import java.util.function.Function;
 
+@RequiredArgsConstructor
 @Service
 public class BoardServiceImpl implements BoardService {
-    private BoardRepository boardRepository;
-    public BoardServiceImpl(BoardRepository boardRepository) {
-        this.boardRepository = boardRepository;
-    }
+    private final BoardRepository boardRepository;
+    private final ReplyRepository replyRepository;
 
+    /*
+    public BoardServiceImpl(BoardRepository boardRepository, ReplyRepository replyRepository) {
+        this.boardRepository = boardRepository;
+        this.replyRepository = replyRepository;
+    }
+*/
 
     @Override
-    public int registerBoard(Board dto) {
+    public int registerBoard(Board board) {
 
-        BoardEntity entity = dtoToEntity(dto);
+        BoardEntity entity = dtoToEntity(board);
 
         if (boardRepository.save(entity) != null) // 저장 성공
             return 1;
@@ -35,7 +44,8 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public Board findBoardById(Board board) {
-        return null;
+        Object[] arr = (Object[]) boardRepository.getBoardByBno(board.getBno());
+        return entityToDto((BoardEntity) arr[0], (MemberEntity) arr[1], (Long) arr[2]);
     }
 
     @Override
@@ -50,13 +60,18 @@ public class BoardServiceImpl implements BoardService {
         return new PageResultDTO<>(result, fn, 5);
     }
 
+
+    @Transactional
     @Override
     public int updateBoard(Board board) {
         return 0;
     }
 
+    @Transactional
     @Override
     public int deleteBoard(Board board) {
+        replyRepository.deleteByBno(board.getBno()); // 댓글 삭제
+        boardRepository.deleteById(board.getBno()); // 게시물 삭제
         return 0;
     }
 }

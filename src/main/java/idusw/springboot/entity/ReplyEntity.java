@@ -5,7 +5,7 @@ import lombok.*;
 
 
 @Entity
-@Table(name="reply_a202112031")
+@Table(name="a202112031_reply")
 
 @ToString(exclude = "board")
 @Getter
@@ -13,15 +13,18 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class ReplyEntity {
+public class ReplyEntity extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "reply_a202112031_seq_gen")
-    @SequenceGenerator(sequenceName = "reply_a202112031_seq", name = "reply_a202112031_seq_gen", initialValue = 1, allocationSize = 1)
-    private Long bno;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "a202112031_reply_seq_gen")
+    @SequenceGenerator(sequenceName = "a202112031_reply_seq", name = "a202112031_reply_seq_gen", initialValue = 1, allocationSize = 1)
+    private Long rno;
 
-    private String text;
-    private String replier;
+    private String text; // 댓글 내용
+    private String replier; // 댓글 사용자
+
+
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private BoardEntity board; // BoardEntity : MemberEntity = N : 1
+    private BoardEntity board; // BoardEntity : MemberEntity = N : 1,
+
 }
