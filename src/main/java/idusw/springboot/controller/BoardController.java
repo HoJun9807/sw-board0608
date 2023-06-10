@@ -4,6 +4,9 @@ package idusw.springboot.controller;
 import idusw.springboot.domain.Board;
 import idusw.springboot.domain.Member;
 import idusw.springboot.domain.PageRequestDTO;
+import idusw.springboot.domain.PageResultDTO;
+import idusw.springboot.entity.BoardEntity;
+import idusw.springboot.entity.MemberEntity;
 import idusw.springboot.service.BoardService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -30,7 +33,7 @@ public class BoardController {
             model.addAttribute("board", Board.builder().build());
             return "/boards/reg-form";
         } else
-            return "redirect:/members/login-form"; // 로그인이 안된 상태인 경우
+            return "redirect:/members/login"; // 로그인이 안된 상태인 경우
     }
 
     @PostMapping("")
@@ -49,7 +52,6 @@ public class BoardController {
         }else
             return "redirect:/members/login";
     }
-
     @GetMapping("")
     public String getBoards(@ModelAttribute PageRequestDTO pageRequestDTO, Model model) { // 중간 본 수ㅈㅇ
         if(pageRequestDTO == null)
@@ -58,6 +60,7 @@ public class BoardController {
             model.addAttribute("list", boardService.findBoardAll(pageRequestDTO));
         return "/boards/list";
     }
+
 
     @GetMapping("/{bno}")
     public String getBoardByBno(@PathVariable("bno") Long bno, Model model) {

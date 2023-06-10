@@ -1,6 +1,7 @@
 package idusw.springboot.service;
 
 import idusw.springboot.domain.Board;
+import idusw.springboot.domain.Member;
 import idusw.springboot.domain.PageRequestDTO;
 import idusw.springboot.domain.PageResultDTO;
 import idusw.springboot.entity.BoardEntity;
@@ -15,6 +16,8 @@ public interface BoardService {
     PageResultDTO<Board, Object[]> findBoardAll(PageRequestDTO pageRequestDTO); //게시물 목록 출력
     int updateBoard(Board board); // 게시물 정보
     int deleteBoard(Board board); // 게시물 ID값 삭제
+
+
 
     default BoardEntity dtoToEntity(Board dto) {
         MemberEntity member = MemberEntity.builder()
